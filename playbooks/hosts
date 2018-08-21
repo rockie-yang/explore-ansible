@@ -1,0 +1,2 @@
+localuser ansible_host=localhost ansible_user=user ansible_private_key_file=/home/user/.ssh/id_rsa
+localtest ansible_host=localhost ansible_user=test ansible_private_key_file=/home/test/.ssh/id_rsa
