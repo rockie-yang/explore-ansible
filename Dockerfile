@@ -1,22 +1,11 @@
 FROM debian:9
 
 RUN apt-get update -y \
-    && apt-get install -y python3 python3-pip curl vim ssh openssh-server
+    && apt-get install -y python3 python3-pip curl vim ssh openssh-server sudo
 
 RUN pip3 install jupyter
 
 RUN apt-get install -y ansible
-
-#
-# There is a bug on docker container when using overlay storage driver. 
-# It can not evaluate control path to real value ControlPath=/root/.ansible/cp/ansible-ssh-%h-%p-%r 
-# 
-# A quick fix is to set directory of control path. 
-#
-# It also can set ssh_args to empty, so that control_path will not be used
-#
-#
-RUN sed -i '/#control_path/ a control_path = /tmp/ansible-ssh' /etc/ansible/ansible.cfg
 
 RUN echo "LC_ALL=\"en_US.UTF-8\"" >> /etc/default/locale
 
@@ -25,6 +14,7 @@ RUN ssh-keygen -q -N "" -t rsa -f /root/.ssh/id_rsa \
   && sed  -i "/^[^#]*UsePAM/ s/.*/#&/"  /etc/ssh/sshd_config \
   && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
   && echo "UsePAM no" >> /etc/ssh/sshd_config \
+  && ssh-keygen -A \
   && service ssh start \
   && update-rc.d ssh defaults
 
@@ -43,19 +33,21 @@ RUN ls -al /bin/sh \
 
 EXPOSE 22
 
-RUN useradd -ms /bin/bash -p user user \
-	&& useradd -ms /bin/bash -p test test
+RUN useradd -ms /bin/bash -p ansible ansible \
+	&& useradd -ms /bin/bash -p test test \
+	&& echo "ansible    ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers \
+	&& echo "test    ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers \
+	&& su ansible && exit \
+	&& su test && exit
+ 	 	
+USER ansible
 
-USER user
+RUN mkdir -p /home/ansible/.ssh/
 
-RUN ssh-keygen -q -N "" -t rsa -f /home/user/.ssh/id_rsa \
-    && cp /home/user/.ssh/id_rsa.pub /home/user/.ssh/authorized_keys 
-
-USER test
-
-RUN ssh-keygen -q -N "" -t rsa -f /home/test/.ssh/id_rsa \
-    && cp /home/test/.ssh/id_rsa.pub /home/test/.ssh/authorized_keys 
+COPY id_rsa.pub /home/ansible/.ssh/authorized_keys
 
 USER root
+
+# ENTRYPOINT service ssh start && bash
 
 CMD ["/usr/sbin/sshd", "-D"]

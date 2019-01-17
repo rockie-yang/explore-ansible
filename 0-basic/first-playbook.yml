@@ -1,0 +1,6 @@
+---
+- name: first playbook
+  hosts: basic
+  tasks:
+    - name: execute a command
+      command: whoami

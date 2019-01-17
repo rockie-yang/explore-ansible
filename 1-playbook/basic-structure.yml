@@ -1,0 +1,12 @@
+---
+- name: this is a play
+  hosts: debian
+  tasks:
+    - name: this is a task to check OS information
+      command: uname -a
+
+    - name: this is a task to install nginx
+      become: true
+      apt:
+        name: nginx
+        update_cache: yes

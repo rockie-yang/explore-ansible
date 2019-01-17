@@ -1,0 +1,63 @@
+---
+- name: test ambari
+  hosts: localhost
+  tasks:
+    - name: Getting clusters
+      uri:
+        url: http://localhost:8080/api/v1/clusters/
+        method: GET
+        return_content: yes
+        user: admin
+        password: admin
+        force_basic_auth: yes
+        validate_certs: false
+        body_format: json
+      register: json_response
+    # - debug:  msg="{{json_response}}"
+
+    - name: getting configuration of the clsuter
+      uri:
+        url: http://localhost:8080/api/v1/clusters/Sandbox
+        method: GET
+        return_content: yes
+        user: admin
+        password: admin
+        force_basic_auth: yes
+        validate_certs: false
+        body_format: json
+      register: json_response
+    - name: save response
+      local_action: copy content={{ json_response }} dest="response.json"
+    
+    - name: Print some debug information 
+      vars: 
+        msg: |
+            Module Variables ("vars"):
+            --------------------------------
+            {{ vars | to_nice_json }} 
+
+            Environment Variables ("environment"):
+            --------------------------------
+            {{ environment | to_nice_json }} 
+
+            GROUP NAMES Variables ("group_names"):
+            --------------------------------
+            {{ group_names | to_nice_json }}
+
+            GROUPS Variables ("groups"):
+            --------------------------------
+            {{ groups | to_nice_json }}
+
+            HOST Variables ("hostvars"):
+            --------------------------------
+            {{ hostvars | to_nice_json }} 
+
+      debug: 
+        msg: "{{ msg.split('\n') }}"       
+      tags: debug_info
+
+
+    - name: Display all variables/facts known for a host
+      debug:
+        var: hostvars[inventory_hostname]
+      tags: debug_info

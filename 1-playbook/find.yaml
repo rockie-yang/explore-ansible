@@ -1,0 +1,14 @@
+---
+
+- name: test ambari
+  hosts: ambari
+  tasks:
+    - name: Find /var/log files equal or greater than 10 megabytes ending with .old or .log.gz via regex
+      find:
+        paths: /
+        recurse: yes        
+      register: result
+
+    - name: Show configuration
+      debug:
+        var: result

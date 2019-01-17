@@ -1,2 +1,4 @@
-localuser ansible_host=localhost ansible_user=user ansible_private_key_file=/home/user/.ssh/id_rsa
-localtest ansible_host=localhost ansible_user=test ansible_private_key_file=/home/test/.ssh/id_rsa
+localuser ansible_host=localhost ansible_user=ansible ansible_private_key_file=/root/id_rsa
+debian ansible_host=debian ansible_user=ansible ansible_private_key_file=/root/id_rsa
+ambari ansible_host=localhost ansible_user=root ansible_ssh_port=2222 ansible_password=hadoop
+

@@ -1,0 +1,7 @@
+ansible ansible_host=ansible ansible_user=ansible ansible_private_key_file=/root/id_rsa
+debian  ansible_host=debian  ansible_user=ansible ansible_private_key_file=/root/id_rsa
+ambari ansible_host=localhost ansible_user=root ansible_ssh_port=2222 ansible_password=hadoop
+
+[basic]
+ansible
+debian
